@@ -4753,7 +4753,7 @@ void outputReults(PARAMETERS *par, int counter)
     fprintf(fileResult,"scalar per node: 1 Damage Damage.*.res \n");
     fprintf(fileResult,"scalar per node: 1 VonMisesStress VonMisesStress.*.res \n");
     fprintf(fileResult,"scalar per node: 1 MinPrincipalStress MinPrincipalStress.*.res \n");
-    fprintf(fileResult,"scalar per node: 1 MaxPrincipalStress MinPrincipalStress.*.res \n");
+    fprintf(fileResult,"scalar per node: 1 MaxPrincipalStress MaxPrincipalStress.*.res \n");
     fprintf(fileResult,"\n");
     fprintf(fileResult,"TIME \n");
     fprintf(fileResult,"\n");
