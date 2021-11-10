@@ -4748,6 +4748,7 @@ void outputReults(PARAMETERS *par, int counter)
     fprintf(fileResult,"vector per node: 1 Acceleration Acceleration.*.res \n");
     fprintf(fileResult,"vector per node: 1 ForceDensity ForceDensity.*.res \n");
     fprintf(fileResult,"tensor symm per node: 1 CauchyStress CauchyStress.*.res \n");
+    fprintf(fileResult,"vector per node: 1 NormalVector NormalVector.*.res \n");
     fprintf(fileResult,"scalar per node: 1 PlasticStrain PlasticStrain.*.res \n");
     fprintf(fileResult,"scalar per node: 1 Damage Damage.*.res \n");
     fprintf(fileResult,"scalar per node: 1 VonMisesStress VonMisesStress.*.res \n");
@@ -4859,7 +4860,7 @@ void outputReults(PARAMETERS *par, int counter)
 
 
   // ##################################################
-  //                  Acceleration File
+  //                  ForceDensity File
   // ##################################################
 
   sprintf(filenameResults,"Output/ForceDensity.%d.res",counter);
@@ -4910,6 +4911,34 @@ void outputReults(PARAMETERS *par, int counter)
                                                                  point[i].cauchyStress[5]);
 
     fprintf(fileResult,"\n  ");
+  }
+
+  fclose(fileResult);
+
+
+  // ##################################################
+  //                  NormalVector File
+  // ##################################################
+
+  sprintf(filenameResults,"Output/NormalVector.%d.res",counter);
+
+  fileResult=fopen(filenameResults,"wt");
+  if (fileResult == NULL){
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  fprintf(fileResult,"NormalVector \n");
+
+  for(i=0; i<numPoints;i++){
+    POINTS *point = par->puntos;
+    fprintf( fileResult, "%.5e   %.5e   %.5e   ", 
+                 point[i].normalVector[0],
+                 point[i].normalVector[1],
+                 point[i].normalVector[2]);
+
+    if ((i+1) % 2 == 0) 
+      fprintf(fileResult,"\n  ");
   }
 
   fclose(fileResult);
