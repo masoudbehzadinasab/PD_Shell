@@ -4750,6 +4750,9 @@ void outputReults(PARAMETERS *par, int counter)
     fprintf(fileResult,"tensor symm per node: 1 CauchyStress CauchyStress.*.res \n");
     fprintf(fileResult,"scalar per node: 1 PlasticStrain PlasticStrain.*.res \n");
     fprintf(fileResult,"scalar per node: 1 Damage Damage.*.res \n");
+    fprintf(fileResult,"scalar per node: 1 VonMisesStress VonMisesStress.*.res \n");
+    fprintf(fileResult,"scalar per node: 1 MinPrincipalStress MinPrincipalStress.*.res \n");
+    fprintf(fileResult,"scalar per node: 1 MaxPrincipalStress MinPrincipalStress.*.res \n");
     fprintf(fileResult,"\n");
     fprintf(fileResult,"TIME \n");
     fprintf(fileResult,"\n");
@@ -4954,6 +4957,76 @@ void outputReults(PARAMETERS *par, int counter)
   for(i=0; i<numPoints;i++){
     POINTS *point = par->puntos;
     fprintf( fileResult, "%.5e  ", point[i].damage[1]);
+
+    if ((i+1) % 6 == 0) 
+      fprintf(fileResult,"\n  ");
+  }
+
+  // ##################################################
+  //                  VonMisesStress File
+  // ##################################################
+
+  sprintf(filenameResults,"Output/VonMisesStress.%d.res",counter);
+
+  fileResult=fopen(filenameResults,"wt");
+  if (fileResult == NULL){
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  fprintf(fileResult,"VonMisesStress \n");
+
+  for(i=0; i<numPoints;i++){
+    POINTS *point = par->puntos;
+    fprintf( fileResult, "%.5e  ", point[i].vonMisesStress);
+
+    if ((i+1) % 6 == 0) 
+      fprintf(fileResult,"\n  ");
+  }
+
+  fclose(fileResult);
+
+  // ##################################################
+  //                  MinPrincipalStress File
+  // ##################################################
+
+  sprintf(filenameResults,"Output/MinPrincipalStress.%d.res",counter);
+
+  fileResult=fopen(filenameResults,"wt");
+  if (fileResult == NULL){
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  fprintf(fileResult,"MinPrincipalStress \n");
+
+  for(i=0; i<numPoints;i++){
+    POINTS *point = par->puntos;
+    fprintf( fileResult, "%.5e  ", point[i].minPrincipalStress);
+
+    if ((i+1) % 6 == 0) 
+      fprintf(fileResult,"\n  ");
+  }
+
+  fclose(fileResult);
+
+  // ##################################################
+  //                  MaxPrincipalStress File
+  // ##################################################
+
+  sprintf(filenameResults,"Output/MaxPrincipalStress.%d.res",counter);
+
+  fileResult=fopen(filenameResults,"wt");
+  if (fileResult == NULL){
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  fprintf(fileResult,"MaxPrincipalStress \n");
+
+  for(i=0; i<numPoints;i++){
+    POINTS *point = par->puntos;
+    fprintf( fileResult, "%.5e  ", point[i].maxPrincipalStress);
 
     if ((i+1) % 6 == 0) 
       fprintf(fileResult,"\n  ");

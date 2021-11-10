@@ -21,6 +21,9 @@ void inputParameters(PARAMETERS *par)
   par->density = 7.8e-6; //Undeformed material mass density per unit volume
   par->youngModulus = 200.0e6; //Young's modulus
   par->poissonRatio = 0.3; //Poisson's ratio
+
+  // exponential saturation type hardening rule
+  // Y = Y_0 + (Y_sat - Y_0)(1 - exp( - expCst * eqps)) + linCst * eqps
   par->initialYieldStress = 100.0e3; //Initial yield stress under which the material starts plasticizing. 
   par->saturatedYieldStress = 200.0e3; //Saturated yield stress in this plasticity model
   par->hardeningExponentialConstant = 1.0; //The exponential constant in this plasticity model

@@ -10,7 +10,7 @@ CC = g++
 #  -Wall  - this flag is used to turn on most compiler warnings
 #
 #CFLAGS = -g -Wall -Wextra -Wpedantic -Wunused -Wshadow -Wpointer-arith -Wcast-qual -Wmissing-prototypes -Wno-missing-braces -std=c++14 
-CFLAGS = -Omax -std=c++14 
+CFLAGS = -O3 -std=c++14 
 
 TARGET = PdShell
 
