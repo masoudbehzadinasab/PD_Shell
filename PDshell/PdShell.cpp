@@ -326,6 +326,13 @@ double kernel(int kernelType,
     else
       returnValue = 1.0 +distanceRatio*distanceRatio * (- 6.5217391304347826087 + 16.304347826086956522*distanceRatio*distanceRatio);
   }
+  else if(kernelType==5){
+    //Parabolic Decay
+    if(distanceRatio > 0.50)
+      returnValue = -4.0*distanceRatio*distanceRatio + 4.0*distanceRatio; 
+    else
+      returnValue = 1.0;
+  }
   else{
     printf(" Invalid Kernel Type \n");
   }
@@ -3532,10 +3539,9 @@ void updateBondLevelJacobianDeterminant(PARAMETERS *par)
 
   double* bondLevelJN;
   double* bondLevelJNP1;
-  double* bondLevelVelGradXX;
-  double* bondLevelVelGradYY;
-  double* bondLevelVelGradZZ;
-
+  double* unrotRateOfDefXX;
+  double* unrotRateOfDefYY;
+  double* unrotRateOfDefZZ;
   double velGradTrace;
 
   for(in=0;in<par->numPoints;in++){
@@ -3546,16 +3552,16 @@ void updateBondLevelJacobianDeterminant(PARAMETERS *par)
 
       bondLevelJN = point->layerAssociatedBondLevelJacobianDeterminant[0][l];
       bondLevelJNP1 = point->layerAssociatedBondLevelJacobianDeterminant[1][l];
-      bondLevelVelGradXX = point->layerAssociatedBondLevelVelocityGradient[l][0];
-      bondLevelVelGradYY = point->layerAssociatedBondLevelVelocityGradient[l][4];
-      bondLevelVelGradZZ = point->layerAssociatedBondLevelVelocityGradient[l][8];
+      unrotRateOfDefXX = point->layerAssociatedBondLevelUnrotatedRateOfDeformation[l][0];
+      unrotRateOfDefYY = point->layerAssociatedBondLevelUnrotatedRateOfDeformation[l][4];
+      unrotRateOfDefZZ = point->layerAssociatedBondLevelUnrotatedRateOfDeformation[l][8];
 
       numNeighbors = point->numNeighbors;
       for(n=0; n<numNeighbors; n++,
           bondLevelJN++, bondLevelJNP1++, 
-          bondLevelVelGradXX++, bondLevelVelGradYY++, bondLevelVelGradZZ++){
+          unrotRateOfDefXX++, unrotRateOfDefYY++, unrotRateOfDefZZ++){
 
-        velGradTrace = *bondLevelVelGradXX + *bondLevelVelGradYY + *bondLevelVelGradZZ;
+        velGradTrace = *unrotRateOfDefXX + *unrotRateOfDefYY + *unrotRateOfDefZZ;
         *bondLevelJNP1 = *bondLevelJN * (1.0 + velGradTrace*dt);
       }
     }
@@ -3720,8 +3726,8 @@ void computeAStateIntegral(PARAMETERS *par)
   double* neighborArea;
   double* A0;
   double* neighborA0;
-  double* thickness;
-  double* neighborThickness;
+  double* refThickness;
+  double* neighborRefThickness;
   double* omega;
   double* bondDefX;
   double* bondDefY;
@@ -3747,7 +3753,7 @@ void computeAStateIntegral(PARAMETERS *par)
     point = &par->puntos[in];
     neighbors = point->neighbors;
     A0 = &(point->weightedArea);
-    thickness = &(point->shellThickness[1]);
+    refThickness = &(point->referenceShellThickness);
 
     for(l=0; l<par->numLayers; l++){
 
@@ -3785,7 +3791,7 @@ void computeAStateIntegral(PARAMETERS *par)
           neighbor = &par->puntos[neigh];
           neighborArea = &(neighbor->area);
           neighborA0 = &(neighbor->weightedArea);
-          neighborThickness = &(neighbor->shellThickness[1]);
+          neighborRefThickness = &(neighbor->referenceShellThickness);
 
           deformedBondX = *bondDefX;
           deformedBondY = *bondDefY;
@@ -3795,7 +3801,7 @@ void computeAStateIntegral(PARAMETERS *par)
                                  deformedBondZ*deformedBondZ;
 
           // The negative sign is because it actually is the negative of the integral of aState
-          temp = - *omega/2.0 * ( *thickness / *A0 + *neighborThickness / *neighborA0 ) / deformedBondLengthSq;
+          temp = - *omega/2.0 * ( *refThickness / *A0 + *neighborRefThickness / *neighborA0 ) / deformedBondLengthSq;
 
           *(aState+0) = temp * ( *stressXX * deformedBondX + 
                                  *stressXY * deformedBondY + 
@@ -3831,8 +3837,8 @@ void computeBStateIntegral(PARAMETERS *par)
   double* neighborArea;
   double* A0;
   double* neighborA0;
-  double* thickness;
-  double* neighborThickness;
+  double* refThickness;
+  double* neighborRefThickness;
   double* omega;
   double* bondDefX;
   double* bondDefY;
@@ -3862,7 +3868,7 @@ void computeBStateIntegral(PARAMETERS *par)
     point = &par->puntos[in];
     neighbors = point->neighbors;
     A0 = &(point->weightedArea);
-    thickness = &(point->shellThickness[1]);
+    refThickness = &(point->referenceShellThickness);
 
     for(l=0; l<par->numLayers; l++){
 
@@ -3901,7 +3907,7 @@ void computeBStateIntegral(PARAMETERS *par)
           neighbor = &par->puntos[neigh];
           neighborArea = &(neighbor->area);
           neighborA0 = &(neighbor->weightedArea);
-          neighborThickness = &(neighbor->shellThickness[1]);
+          neighborRefThickness = &(neighbor->referenceShellThickness);
 
           deformedBondX = *bondDefX;
           deformedBondY = *bondDefY;
@@ -3910,7 +3916,7 @@ void computeBStateIntegral(PARAMETERS *par)
                                  deformedBondY*deformedBondY +
                                  deformedBondZ*deformedBondZ;
 
-          scalarTemp = *omega/4.0 * (*thickness / *A0 + *neighborThickness / *neighborA0);
+          scalarTemp = *omega/4.0 * (*refThickness / *A0 + *neighborRefThickness / *neighborA0);
 
           // write the stress in matrix form 
           stress[0] = *stressXX; stress[1] = *stressXY; stress[2] = *stressXZ; 
@@ -4583,7 +4589,7 @@ void updateKinematicsAtTheBeginningOfStep(PARAMETERS *par)
 
     for(i=0; i<dim; i++){
       *(disp+i) = *(dispN+i) + *(vel+i) * dt;
-      *(coord+i) = *(modelCoord+i) + *(dispN+i);
+      *(coord+i) = *(modelCoord+i) + *(disp+i);
     }
   }
 }
@@ -4743,6 +4749,7 @@ void outputReults(PARAMETERS *par, int counter)
     fprintf(fileResult,"\n");
     fprintf(fileResult,"VARIABLE \n");
     fprintf(fileResult,"\n");
+    fprintf(fileResult,"scalar per node: 1 Area Area.*.res \n");
     fprintf(fileResult,"vector per node: 1 Displacement Displacement.*.res \n");
     fprintf(fileResult,"vector per node: 1 Velocity Velocity.*.res \n");
     fprintf(fileResult,"vector per node: 1 Acceleration Acceleration.*.res \n");
@@ -4765,7 +4772,7 @@ void outputReults(PARAMETERS *par, int counter)
     fprintf(fileResult,"time values: \n");
 
     for(i=0; i<par->nOutputSteps;i++){
-      fprintf(fileResult,"%.5e  ", par->timeStep*i);
+      fprintf(fileResult,"%.5e  ", par->timeStep*par->FreqResults*i);
 
       if ((i+1) % 6 == 0) 
         fprintf(fileResult,"\n  ");
@@ -4773,6 +4780,31 @@ void outputReults(PARAMETERS *par, int counter)
 
     fclose(fileResult);
   }
+
+
+  // ##################################################
+  //                  Area File
+  // ##################################################
+
+  sprintf(filenameResults,"Output/Area.%d.res",counter);
+
+  fileResult=fopen(filenameResults,"wt");
+  if (fileResult == NULL){
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  fprintf(fileResult,"Area \n");
+
+  for(i=0; i<numPoints;i++){
+    POINTS *point = par->puntos;
+    fprintf( fileResult, "%.5e  ", point[i].area);
+
+    if ((i+1) % 6 == 0) 
+      fprintf(fileResult,"\n  ");
+  }
+
+  fclose(fileResult);
 
 
   // ##################################################
@@ -4991,6 +5023,8 @@ void outputReults(PARAMETERS *par, int counter)
       fprintf(fileResult,"\n  ");
   }
 
+  fclose(fileResult);
+
   // ##################################################
   //                  VonMisesStress File
   // ##################################################
@@ -5081,11 +5115,25 @@ int main(int argc,
   par->dim=3; // Spatial dimension of the space
   par->kernelType = 3; // Cubic Spline (type of influence function)
   
-  par->numLayers = 3; // Discretized layers along the shell thickness
-  par->xi3list[0] = 0.0; par->xi3list[1] = -sqrt(3.0/5.0); par->xi3list[1] = sqrt(3.0/5.0); // Gaussian points along the thickness
-  par->w3list[0] = 8.0/9.0; par->w3list[1] = 5.0/9.0; par->w3list[2] = 5.0/9.0; // Gaussian weights for each point
-
   inputParameters(par); // read the rest of parameters from the user input file
+
+  // Gauss points along the thickness
+  if(par->numLayers == 1){
+    par->xi3list[0] = 0.0; // Gaussian points along the thickness
+    par->w3list[0] = 2.0; // Gaussian weights for each point
+  }
+  else if(par->numLayers == 2){
+    par->xi3list[0] = -sqrt(1.0/3.0); par->xi3list[1] = sqrt(1.0/3.0); // Gaussian points along the thickness
+    par->w3list[0] = 1.0; par->w3list[1] = 1.0; // Gaussian weights for each point
+  }
+  else if(par->numLayers == 3){
+    par->xi3list[0] = 0.0; par->xi3list[1] = -sqrt(3.0/5.0); par->xi3list[2] = sqrt(3.0/5.0); // Gaussian points along the thickness
+    par->w3list[0] = 8.0/9.0; par->w3list[1] = 5.0/9.0; par->w3list[2] = 5.0/9.0; // Gaussian weights for each point
+  }
+  else{
+    printf("Number of discretized layers along the thickness is currently limited to 3!\n");
+    exit(1);
+  }
   // ------
 
   par->nSteps = int( floor((par->finalTime - par->initialTime)/par->timeStep) );

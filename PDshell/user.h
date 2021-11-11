@@ -7,9 +7,13 @@ void inputParameters(PARAMETERS *par)
   // Assign the input parameters here
   // User should specify with respect to the problem
   
-  par->shellThickness = 1.0; // Reference shell thickness
+  // neighborhood parameters
   par->orderOfBasis = 2; // Order of accuracy (polynomial reproducibility)
   par->horizon = 2.5; // PD horizon for each point
+
+  // shell parameters
+  par->shellThickness = 1.0; // Reference shell thickness
+  par->numLayers = 3; // Number of discretized layers along the shell thickness (1, 2, or 3)
 
   // solver parameters
   par->initialTime = 0.0; //Initial time of our computation, usually 0

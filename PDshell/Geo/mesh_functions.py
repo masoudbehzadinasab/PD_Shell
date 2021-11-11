@@ -4,7 +4,7 @@ from matplotlib import path
 from numpy import linspace
 
 class foreground():
-    # Contains coor, volumes, numpts, dx,dy,dz and right and left boundaries for volumes
+    # Contains coor, areas, numpts, dx,dy,dz and right and left boundaries for areas
     def __init__(self, coor, vols, xyx_numpts_vec, dx_vec, dy_vec, dh_vec, xr, xl, yr, yl, hr, hl):
         self.coor = coor
         self.vols = vols
@@ -20,7 +20,7 @@ class foreground():
         self.hl = hl
 
 def generate_unif_particles(origin, xyzmax_vec, xyz_numpts_vec):
-    # Generate volumes and positions from input origin, 3 orthogonal max displacements in x, y and z as [xmax, ymax, zmax], and a vector of the number of points in x, y and z to generate as np.array([numptsx, numptsy, numptsz])
+    # Generate areas and positions from input origin, 3 orthogonal max displacements in x, y and z as [xmax, ymax, zmax], and a vector of the number of points in x, y and z to generate as np.array([numptsx, numptsy, numptsz])
 
     xyz_totalnumpts_vec = xyz_numpts_vec
     node_num=xyz_totalnumpts_vec[0]*xyz_totalnumpts_vec[1]*xyz_totalnumpts_vec[2]
@@ -88,7 +88,7 @@ def vis_particles2d(G):
     plt.show()
 
 def save_geometry(G):
-    # outputs Geometry.dat including input coordinates and volumes of the PD nodes
+    # outputs Geometry.dat including input coordinates and areas of the PD nodes
     print("Saving input files...")
     coor=G.coor
     vol=G.vols
