@@ -3169,6 +3169,7 @@ void updateIsotropicHardeningCauchyStress(PARAMETERS *par)
       }
     }
     tred2(V, d, e); // diagonalize V
+    tql2(V, d, e);
 
     // find the max and min of eigenvalues
     *minPrincipalStress = d[0];
@@ -3361,6 +3362,7 @@ void updateBondLevelIsotropicHardeningCauchyStress(PARAMETERS *par)
           }
         }
         tred2(V, d, e); // diagonalize V
+        tql2(V, d, e);
 
         // find the max and min of eigenvalues
         *minPrincipalStress = d[0];
