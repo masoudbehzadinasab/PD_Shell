@@ -4625,6 +4625,10 @@ void updateKinematicsAtTheEndOfStep(PARAMETERS *par)
     for(i=0; i<dim; i++)
       *(vel+i) += *(acc+i) * dt/2.0;
   }
+
+  // Fix the velocity boundary conditions on the essential nodes
+  // This will make velocity outputs look correct
+  prescribeEssentialBoundaryConditions(par); 
 }
 
 
