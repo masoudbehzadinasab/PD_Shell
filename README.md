@@ -1,4 +1,4 @@
-# PD Shell
+# Peridynamics Shell Formulation for Failure Analysis of Thin-Walled Structures
 
 C++ code based on the general-purpose, inelastic, rotation-free Kirchhoff-Love shell formulation for peridynamics.
 
